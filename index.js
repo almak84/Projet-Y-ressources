@@ -6,6 +6,8 @@ canvas.height = 576
 
 const gravity = 0.485
 
+let playercolor = ''
+
 class Sprite {
   constructor({ position, imageSrc }) {
     this.position = position
@@ -35,7 +37,7 @@ class Player {
   }
 
   draw() {
-    c.fillStyle = 'red'
+    c.fillStyle = playercolor
     c.fillRect(this.position.x, this.position.y, this.height, this.height)
   }
 
@@ -65,7 +67,12 @@ const keys = {
   q: {
     pressed: false,
   },
+  shift: {
+    pressed: false,
+  },
 }
+
+let stamina = 100
 
 const background = new Sprite({
   position: {
@@ -75,7 +82,8 @@ const background = new Sprite({
   imageSrc: './img/background.png'
 })
 
-function animation() {
+// Boucle générale du jeu
+function animation() { 
   window.requestAnimationFrame(animation)
   c.fillStyle = 'white'
   c.fillRect(0, 0, canvas.width, canvas.height)
@@ -88,39 +96,58 @@ function animation() {
   player.update()
 
   player.velocity.x = 0
-  if (keys.d.pressed) player.velocity.x = 3
-  else if (keys.q.pressed) player.velocity.x = -3
+  
+  if (keys.d.pressed && keys.shift.pressed) player.velocity.x = 6, playercolor = 'yellow'
+  else if (keys.d.pressed ) player.velocity.x = 3, playercolor = 'orange'
+  else if (keys.q.pressed && keys.shift.pressed) player.velocity.x = -6, playercolor = 'yellow'
+  else if (keys.q.pressed) player.velocity.x = -3, playercolor = 'orange'
+  else playercolor = 'red'
+
+  if (stamina < 100 ) stamina ++
 }
 
 animation()
 
+//Touches préssées
 window.addEventListener('keydown', (event) => {
   switch(event.key) {
-    case 'd':
+
+    case 'd': //aller a droite ( pression)
       keys.d.pressed = true
       break
-    case 'q':
+
+    case 'q': //aller a gauche ( pression)
       keys.q.pressed = true
       break
-    case 'z':
+
+    case 'z': //aller a sauter
       if (player.onGround) {
         player.velocity.y = -13
         player.onGround = false
       }
       break
-    case 'r':
+
+    case 'r': //restart
       player.position.x = 0
+      break
+
+    case 'Shift': //sprint
+      keys.shift.pressed = true
       break
   }
 })
 
+//Touches relachées
 window.addEventListener('keyup', (event) => {
   switch(event.key) {
     case 'd':
-      keys.d.pressed = false
+      keys.d.pressed = false //aller a droite ( relachée)
       break
     case 'q':
-      keys.q.pressed = false
+      keys.q.pressed = false //aller a gauche ( relachée)
+      break
+    case 'Shift': //sprint desactivé
+      keys.shift.pressed = false
       break
   }
 })
